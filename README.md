@@ -179,7 +179,7 @@ COMMAND: gcloud compute ssh mhn-honeypot-1
          gcloud compute ssh mhn-honeypot-2
          gcloud compute ssh mhn-honeypot-3
 
-![https://github.com/acary/fb-cp-wk9/blob/master/images/firewall-rules.png?raw=true]
+![Firewall Rules](https://github.com/acary/fb-cp-wk9/blob/master/images/firewall-rules.png?raw=true)
 --
 Milestone 4: Install the Honeypot Application
 After having established SSH access the new honeypot VM, we need to install the honeypot application into the VM and wire it to connect back to the admin server. Fortunately, MHN makes this fairly straightforward. First, in the MHN admin console in your browser, click on Deploy in the top nav, and you'll be asked to select a script. Choose Ubuntu - Dionaea with HTTP, and you'll see a Deploy Command appear with a full deployment script below it. You can ignore the script, which is just for reference, but make a note of the Deploy Command, which is the one-line command you'll need to execute inside the honeypot VM you connected to in the last step.
@@ -232,8 +232,8 @@ ERROR: Unknown OS
 Exiting!
 ++ exit -1
 
-![https://github.com/acary/fb-cp-wk9/blob/master/images/sensors.png?raw=true]
-![https://github.com/acary/fb-cp-wk9/blob/master/images/sensors-2.png?raw=true]
+![Sensor 1](https://github.com/acary/fb-cp-wk9/blob/master/images/sensors.png?raw=true)
+![Sensor 2](https://github.com/acary/fb-cp-wk9/blob/master/images/sensors-2.png?raw=true)
 
 --
 So, copy the command from the browser page. It should start with wget and end with a unique token string. Execute this command inside the honeypot VM to install the Dionaea software. It shouldn't take more than a few minutes to complete. When it's done, click back over to the MHN admin console in your browser. From the top nav, choose Sensors >> View sensors and you should see the new honeypot listed.
@@ -307,7 +307,7 @@ It should show three ports open...these are the services Dionaea is using to att
 
 You may, however, see other attacks as well, from other IPs. In fact, it shouldn't take long at all for this to happen. Port scans should start coming in at an alarming rate, from all over the world, and even with only a single honeypot deployed, MHN will start collecting lots of data. Welcome to the hostile territory that is the Internet.
 
-![https://github.com/acary/fb-cp-wk9/blob/master/images/attacks-report.png?raw=true]
+![Attacks](https://github.com/acary/fb-cp-wk9/blob/master/images/attacks-report.png?raw=true)
 
 Needs Moar Honeypot
 You can stick with a single honeypot, but we encourage you to try some of the others that MHN supports, after reading up on each to understand a bit more about them. You'll basically repeat the process described in milestones 3-5 for each one (GCP Users: note you won't need to create any additional firewall rules after the one created in Milestone 3, only additional VM instances, which you should name uniquely, i.e. mhn-honeypot-2, mhn-honeypot-3, etc). We recommend sticking with the Ubuntu 14.04 stack unless you're very familiar with Linux. See how much data you can collect! Bonus points for capturing any malware samples.
