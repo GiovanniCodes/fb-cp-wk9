@@ -74,7 +74,7 @@ COMMAND: gcloud compute ssh mhn-admin
 Your identification has been saved in /Users/sigintz/.ssh/google_compute_engine.
 Your public key has been saved in /Users/sigintz/.ssh/google_compute_engine.pub.
 The key fingerprint is:
-SHA256:Z066oSmAiIa1Gh5Y2USk4Xwy5eNoCc0o7b/6JKUVt80 sigintz@dwc3452.lan
+SHA256:Z066oSmAiIa1Gh5Y2USk4Xwy5eNoCc0o7b/6JKUVt80 sigintz@sigintz.lan
 The key's randomart image is:
 +---[RSA 2048]----+
 |  .o+            |
@@ -149,7 +149,7 @@ First, create the firewall rule to allow incoming traffic on all ports:
 $ gcloud beta compute firewall-rules create mhn-allow-honeypot --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0 --target-tags=mhn-honeypot
 
 --
-dwc3452:~ sigintz$ gcloud beta compute firewall-rules create mhn-allow-honeypot --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0 --target-tags=mhn-honeypot
+sigintz:~ sigintz$ gcloud beta compute firewall-rules create mhn-allow-honeypot --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0 --target-tags=mhn-honeypot
 Creating firewall...|Created [https://www.googleapis.com/compute/beta/projects/fb-cp-wk9/global/firewalls/mhn-allow-honeypot].
 Creating firewall...done.
 NAME                NETWORK  DIRECTION  PRIORITY  ALLOW  DENY
@@ -193,7 +193,7 @@ After having established SSH access the new honeypot VM, we need to install the 
 
 Errors encountered when trying to install p0f and ElasticHoney:
 
-dwc3452:~ sigintz$ wget "http://35.197.22.12/api/script/?text=true&script_id=6" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec
+sigintz:~ sigintz$ wget "http://35.197.22.12/api/script/?text=true&script_id=6" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec
 --2018-04-06 14:19:59--  http://35.197.22.12/api/script/?text=true&script_id=6
 Connecting to 35.197.22.12:80... connected.
 HTTP request sent, awaiting response... 200 OK
@@ -225,7 +225,7 @@ registration.sh               100%[=============================================
 ++ deploy_key=kRAWjSec
 ++ honeypot=elastichoney
 +++ hostname
-++ hostname=dwc3452.lan
+++ hostname=sigintz.lan
 ++ '[' -f /etc/debian_version ']'
 ++ '[' -f /etc/redhat-release ']'
 ++ echo -e 'ERROR: Unknown OS\nExiting!'
