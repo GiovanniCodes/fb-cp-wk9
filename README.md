@@ -64,9 +64,6 @@ mhn-admin  us-west1-c  f1-micro                   10.138.0.2   35.197.22.12  RUN
 
 EXTERNAL IP: 35.197.22.12
 
-/* NAME              ZONE           MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
-mhn-admin         us-central1-c  f1-micro                   10.128.0.11  35.192.133.42  RUNNING */
-
 Finally, establish SSH access to the VM via gcloud compute ssh mhn-admin (which is similar to ssh). You'll be asked to add the fingerprint the first time you connect, and you'll see the Ubuntu welcome message and a command prompt.
 
 COMMAND: gcloud compute ssh mhn-admin
@@ -181,6 +178,8 @@ Again, make note of the external IP, then go ahead and establish SSH access to t
 COMMAND: gcloud compute ssh mhn-honeypot-1
          gcloud compute ssh mhn-honeypot-2
          gcloud compute ssh mhn-honeypot-3
+
+![https://github.com/acary/fb-cp-wk9/blob/master/images/firewall-rules.png?raw=true]
 --
 Milestone 4: Install the Honeypot Application
 After having established SSH access the new honeypot VM, we need to install the honeypot application into the VM and wire it to connect back to the admin server. Fortunately, MHN makes this fairly straightforward. First, in the MHN admin console in your browser, click on Deploy in the top nav, and you'll be asked to select a script. Choose Ubuntu - Dionaea with HTTP, and you'll see a Deploy Command appear with a full deployment script below it. You can ignore the script, which is just for reference, but make a note of the Deploy Command, which is the one-line command you'll need to execute inside the honeypot VM you connected to in the last step.
@@ -232,6 +231,9 @@ registration.sh               100%[=============================================
 ERROR: Unknown OS
 Exiting!
 ++ exit -1
+
+![https://github.com/acary/fb-cp-wk9/blob/master/images/sensors.png?raw=true]
+![https://github.com/acary/fb-cp-wk9/blob/master/images/sensors-2.png?raw=true]
 
 --
 So, copy the command from the browser page. It should start with wget and end with a unique token string. Execute this command inside the honeypot VM to install the Dionaea software. It shouldn't take more than a few minutes to complete. When it's done, click back over to the MHN admin console in your browser. From the top nav, choose Sensors >> View sensors and you should see the new honeypot listed.
@@ -299,11 +301,13 @@ PORT     STATE SERVICE
 80/tcp   open  http
 3128/tcp open  squid-http
 8080/tcp open  http-proxy
-Nmap done: 1 IP address (1 host up) scanned in 4.52 seconds */
+Nmap done: 1 IP address (1 host up) scanned in 4.52 seconds
 
 It should show three ports open...these are the services Dionaea is using to attract attackers. Switch back to the MHN Admin console in your browser, and from the top nav, choose Attacks. If everything goes well, you should see your IP address listed with several port scan records. This means the honeypot intercepted your attack.
 
 You may, however, see other attacks as well, from other IPs. In fact, it shouldn't take long at all for this to happen. Port scans should start coming in at an alarming rate, from all over the world, and even with only a single honeypot deployed, MHN will start collecting lots of data. Welcome to the hostile territory that is the Internet.
+
+![https://github.com/acary/fb-cp-wk9/blob/master/images/attacks-report.png?raw=true]
 
 Needs Moar Honeypot
 You can stick with a single honeypot, but we encourage you to try some of the others that MHN supports, after reading up on each to understand a bit more about them. You'll basically repeat the process described in milestones 3-5 for each one (GCP Users: note you won't need to create any additional firewall rules after the one created in Milestone 3, only additional VM instances, which you should name uniquely, i.e. mhn-honeypot-2, mhn-honeypot-3, etc). We recommend sticking with the Ubuntu 14.04 stack unless you're very familiar with Linux. See how much data you can collect! Bonus points for capturing any malware samples.
