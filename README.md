@@ -55,52 +55,47 @@ That last requirement is generally the only one that may require a specific fire
 GCP Users
 First, create a firewall rule to allow ingress traffic on TCP ports 3000 and 10000. The following command can be used to do this via the command line:
 
-```$ gcloud beta compute firewall-rules create mhn-allow-admin --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=tcp:3000,tcp:10000 --source-ranges=0.0.0.0/0 --target-tags=mhn-admin
-```
+`$ gcloud beta compute firewall-rules create mhn-allow-admin --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=tcp:3000,tcp:10000 --source-ranges=0.0.0.0/0 --target-tags=mhn-admin`
 
 This will prompt you to install the beta SDK; after doing so, the command should complete successfully. You can verify the mhn-allow-admin rule was created via the browser by looking at the VPC Network Firewall Ingress Rules.
 
 Next, create the VM itself, which we'll call mhn-admin:
 
-```$ gcloud compute instances create "mhn-admin" --machine-type "f1-micro" --subnet "default" --maintenance-policy "MIGRATE"  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "mhn-admin","http-server","https-server" --image "ubuntu-1404-trusty-v20171010" --image-project "ubuntu-os-cloud" --boot-disk-size "10" --boot-disk-type "pd-standard" --boot-disk-device-name "mhn-admin"
-```
+`$ gcloud compute instances create "mhn-admin" --machine-type "f1-micro" --subnet "default" --maintenance-policy "MIGRATE"  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "mhn-admin","http-server","https-server" --image "ubuntu-1404-trusty-v20171010" --image-project "ubuntu-os-cloud" --boot-disk-size "10" --boot-disk-type "pd-standard" --boot-disk-device-name "mhn-admin"`
 
 Note the tags value, which controls the applicable firewall rules. The output should show both internal and external IP addresses...make note of the external IP:
 
-```NAME       ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP   STATUS
-mhn-admin  us-west1-c  f1-micro                   10.138.0.2   35.197.22.12  RUNNING
-```
+`NAME       ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP   STATUS`
+`mhn-admin  us-west1-c  f1-micro                   10.138.0.2   35.197.22.12  RUNNING`
 
-```EXTERNAL IP: 35.197.22.12
-```
+`EXTERNAL IP: 35.197.22.12`
 
 Finally, establish SSH access to the VM via gcloud compute ssh mhn-admin (which is similar to ssh). You'll be asked to add the fingerprint the first time you connect, and you'll see the Ubuntu welcome message and a command prompt.
 
-COMMAND: ```gcloud compute ssh mhn-admin
+COMMAND: `gcloud compute ssh mhn-admin`
 
 Updating project ssh metadata...done.
 Waiting for SSH key to propagate.
 Warning: Permanently added 'compute.3246857753144767930' (ECDSA) to the list of known hosts.
-```
 
 ---
 Milestone 2: Install the MHN Admin Application
+
 After having established SSH access the MHN Admin VM, the following instructions can be run on the remote VM to install the application. Note: this step may take 30-40 minutes overall. These instructions were adapted from the MHN README.
 
 First, update apt and install git:
 
-```$ sudo apt-get update
-$ sudo apt-get install git -y
-```
+`$ sudo apt-get update
+$ sudo apt-get install git -y`
+
 Next, clone the MHN code into /opt, change into the clone directory, and run install.sh:
 
 Note: the instructions below reference a fork version of the main MHN repo containing a patch for a known issue identified with the main code as of 10/28/17.
 
-```$ cd /opt
+`$ cd /opt
 $ sudo git clone https://github.com/RedolentSun/mhn.git
 $ cd mhn
-$ sudo ./install.sh
-```
+$ sudo ./install.sh`
 
 This will start the script running and it will take a while (approximately 20 minutes) to complete the first part, after which you'll be prompted to specify a series of values:
 
@@ -140,48 +135,41 @@ Run the following commands on your local machine. You can either exit out of the
 
 First, create the firewall rule to allow incoming traffic on all ports:
 
-```$ gcloud beta compute firewall-rules create mhn-allow-honeypot --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0 --target-tags=mhn-honeypot
-```
+`$ gcloud beta compute firewall-rules create mhn-allow-honeypot --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0 --target-tags=mhn-honeypot`
 
-```sigintz:~ sigintz$ gcloud beta compute firewall-rules create mhn-allow-honeypot --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0 --target-tags=mhn-honeypot
+`sigintz:~ sigintz$ gcloud beta compute firewall-rules create mhn-allow-honeypot --direction=INGRESS --priority=1000 --network=default --action=ALLOW --rules=all --source-ranges=0.0.0.0/0 --target-tags=mhn-honeypot`
 Creating firewall...|Created [https://www.googleapis.com/compute/beta/projects/fb-cp-wk9/global/firewalls/mhn-allow-honeypot].
 Creating firewall...done.
-```
 
-```NAME                NETWORK  DIRECTION  PRIORITY  ALLOW  DENY
-mhn-allow-honeypot  default  INGRESS    1000      all
-```
+`NAME                NETWORK  DIRECTION  PRIORITY  ALLOW  DENY
+mhn-allow-honeypot  default  INGRESS    1000      all`
 
 Now, create the VM for our honeypot, called mhn-honeypot-1:
 
 1) Dionea
-```$ gcloud compute instances create "mhn-honeypot-1" --machine-type "f1-micro" --subnet "default" --maintenance-policy "MIGRATE"  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "mhn-honeypot","http-server" --image "ubuntu-1404-trusty-v20171010" --image-project "ubuntu-os-cloud" --boot-disk-size "10" --boot-disk-type "pd-standard" --boot-disk-device-name "mhn-honeypot-1"
+`$ gcloud compute instances create "mhn-honeypot-1" --machine-type "f1-micro" --subnet "default" --maintenance-policy "MIGRATE"  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "mhn-honeypot","http-server" --image "ubuntu-1404-trusty-v20171010" --image-project "ubuntu-os-cloud" --boot-disk-size "10" --boot-disk-type "pd-standard" --boot-disk-device-name "mhn-honeypot-1"`
 
-NAME            ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
-mhn-honeypot-1  us-west1-a  f1-micro                   10.138.0.3   35.185.194.21  RUNNING
-```
+`NAME            ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
+mhn-honeypot-1  us-west1-a  f1-micro                   10.138.0.3   35.185.194.21  RUNNING`
 
 2) Dionea with HTTP
-```$ gcloud compute instances create "mhn-honeypot-2" --machine-type "f1-micro" --subnet "default" --maintenance-policy "MIGRATE"  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "mhn-honeypot","http-server" --image "ubuntu-1404-trusty-v20171010" --image-project "ubuntu-os-cloud" --boot-disk-size "10" --boot-disk-type "pd-standard" --boot-disk-device-name "mhn-honeypot-2"
+`$ gcloud compute instances create "mhn-honeypot-2" --machine-type "f1-micro" --subnet "default" --maintenance-policy "MIGRATE"  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "mhn-honeypot","http-server" --image "ubuntu-1404-trusty-v20171010" --image-project "ubuntu-os-cloud" --boot-disk-size "10" --boot-disk-type "pd-standard" --boot-disk-device-name "mhn-honeypot-2"`
 
-NAME            ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
-mhn-honeypot-2  us-west1-b  f1-micro                   10.138.0.4   35.197.36.229  RUNNING
-```
+`NAME            ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
+mhn-honeypot-2  us-west1-b  f1-micro                   10.138.0.4   35.197.36.229  RUNNING`
 
 3)
-```$ gcloud compute instances create "mhn-honeypot-3" --machine-type "f1-micro" --subnet "default" --maintenance-policy "MIGRATE"  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "mhn-honeypot","http-server" --image "ubuntu-1404-trusty-v20171010" --image-project "ubuntu-os-cloud" --boot-disk-size "10" --boot-disk-type "pd-standard" --boot-disk-device-name "mhn-honeypot-3"
+`$ gcloud compute instances create "mhn-honeypot-3" --machine-type "f1-micro" --subnet "default" --maintenance-policy "MIGRATE"  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "mhn-honeypot","http-server" --image "ubuntu-1404-trusty-v20171010" --image-project "ubuntu-os-cloud" --boot-disk-size "10" --boot-disk-type "pd-standard" --boot-disk-device-name "mhn-honeypot-3"`
 
-NAME            ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
-mhn-honeypot-3  us-west1-c  f1-micro                   10.138.0.5   35.185.225.98  RUNNING
-```
+`NAME            ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
+mhn-honeypot-3  us-west1-c  f1-micro                   10.138.0.5   35.185.225.98  RUNNING`
 
 Again, make note of the external IP, then go ahead and establish SSH access to the VM using gcloud compute ssh mhn-honeypot-1. You will again be asked to add the fingerprint and will see the Ubuntu 14.04 welcome message.
 
 ---
-COMMAND: ```gcloud compute ssh mhn-honeypot-1```
-         ```gcloud compute ssh mhn-honeypot-2```
-         ```gcloud compute ssh mhn-honeypot-3
-         ```
+COMMAND: `gcloud compute ssh mhn-honeypot-1`
+         `gcloud compute ssh mhn-honeypot-2`
+         `gcloud compute ssh mhn-honeypot-3`
 
 ![Firewall Rules](https://github.com/acary/fb-cp-wk9/blob/master/images/firewall-rules.png?raw=true)
 
@@ -191,20 +179,17 @@ After having established SSH access the new honeypot VM, we need to install the 
 
 ---
 1) Dionea:
-```wget "http://35.197.22.12/api/script/?text=true&script_id=2" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec
-```
+`wget "http://35.197.22.12/api/script/?text=true&script_id=2" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec`
 
 2) Dionea with HTTP:
-```wget "http://35.197.22.12/api/script/?text=true&script_id=4" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec
-```
+`wget "http://35.197.22.12/api/script/?text=true&script_id=4" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec`
 
 3) ElasticHoney:
-```wget "http://35.197.22.12/api/script/?text=true&script_id=6" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec
-```
+`wget "http://35.197.22.12/api/script/?text=true&script_id=6" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec`
 
 Errors encountered when trying to install p0f and ElasticHoney:
 
-```sigintz:~ sigintz$ wget "http://35.197.22.12/api/script/?text=true&script_id=6" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec
+`sigintz:~ sigintz$ wget "http://35.197.22.12/api/script/?text=true&script_id=6" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec
 --2018-04-06 14:19:59--  http://35.197.22.12/api/script/?text=true&script_id=6
 Connecting to 35.197.22.12:80... connected.
 HTTP request sent, awaiting response... 200 OK
@@ -242,8 +227,7 @@ registration.sh               100%[=============================================
 ++ echo -e 'ERROR: Unknown OS\nExiting!'
 ERROR: Unknown OS
 Exiting!
-++ exit -1
-```
+++ exit -1`
 
 ![Sensor 1](https://github.com/acary/fb-cp-wk9/blob/master/images/sensors.png?raw=true)
 ![Sensor 2](https://github.com/acary/fb-cp-wk9/blob/master/images/sensors-2.png?raw=true)
@@ -251,16 +235,17 @@ Exiting!
 ---
 So, copy the command from the browser page. It should start with wget and end with a unique token string. Execute this command inside the honeypot VM to install the Dionaea software. It shouldn't take more than a few minutes to complete. When it's done, click back over to the MHN admin console in your browser. From the top nav, choose Sensors >> View sensors and you should see the new honeypot listed.
 
-```Name	Hostname	IP	Honeypot	UUID	Attacks
+`Name	Hostname	IP	Honeypot	UUID	Attacks
 mhn-honeypot-1-dionaea
-mhn-honeypot-1	35.185.194.21	dionaea	6bd7cc46-39d6-11e8-8530-42010a8a0002	0
-```
+mhn-honeypot-1	35.185.194.21	dionaea	6bd7cc46-39d6-11e8-8530-42010a8a0002	0`
+
 ---
 Milestone 5: Attack!
+
 Now for the fun part: let's attack the honeypot to make sure it's all working. You can use nmap and pass it the IP of the honeypot VM (not the IP of the MHN admin VM):
 
 1) Dionea
-```sigintz@mhn-honeypot-1:~$ nmap 35.185.194.21
+`sigintz@mhn-honeypot-1:~$ nmap 35.185.194.21
 
 Starting Nmap 6.40 ( http://nmap.org ) at 2018-04-06 20:15 UTC
 Nmap scan report for 21.194.185.35.bc.googleusercontent.com (35.185.194.21)
@@ -280,11 +265,10 @@ PORT     STATE    SERVICE
 5060/tcp open     sip
 5061/tcp open     sip-tls
 
-Nmap done: 1 IP address (1 host up) scanned in 1.24 seconds
-```
+Nmap done: 1 IP address (1 host up) scanned in 1.24 seconds`
 
 2) Dionea with HTTP:
-```sigintz@mhn-honeypot-2:~$ nmap 35.197.36.229
+`sigintz@mhn-honeypot-2:~$ nmap 35.197.36.229
 
 Starting Nmap 6.40 ( http://nmap.org ) at 2018-04-06 20:29 UTC
 Nmap scan report for 229.36.197.35.bc.googleusercontent.com (35.197.36.229)
@@ -306,8 +290,7 @@ PORT     STATE    SERVICE
 5060/tcp open     sip
 5061/tcp open     sip-tls
 
-Nmap done: 1 IP address (1 host up) scanned in 1.25 seconds
-```
+Nmap done: 1 IP address (1 host up) scanned in 1.25 seconds`
 
 3)
 Errors occurred with additional attempts
@@ -320,6 +303,7 @@ You may, however, see other attacks as well, from other IPs. In fact, it shouldn
 
 ---
 Needs Moar Honeypot
+
 You can stick with a single honeypot, but we encourage you to try some of the others that MHN supports, after reading up on each to understand a bit more about them. You'll basically repeat the process described in milestones 3-5 for each one (GCP Users: note you won't need to create any additional firewall rules after the one created in Milestone 3, only additional VM instances, which you should name uniquely, i.e. mhn-honeypot-2, mhn-honeypot-3, etc). We recommend sticking with the Ubuntu 14.04 stack unless you're very familiar with Linux. See how much data you can collect! Bonus points for capturing any malware samples.
 
 Submission Instructions
