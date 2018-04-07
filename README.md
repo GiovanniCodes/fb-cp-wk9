@@ -245,7 +245,7 @@ Milestone 5: Attack!
 Now for the fun part: let's attack the honeypot to make sure it's all working. You can use nmap and pass it the IP of the honeypot VM (not the IP of the MHN admin VM):
 
 1) Dionea
-`sigintz@mhn-honeypot-1:~$ nmap 35.185.194.21
+```sigintz@mhn-honeypot-1:~$ nmap 35.185.194.21
 
 Starting Nmap 6.40 ( http://nmap.org ) at 2018-04-06 20:15 UTC
 Nmap scan report for 21.194.185.35.bc.googleusercontent.com (35.185.194.21)
@@ -265,10 +265,11 @@ PORT     STATE    SERVICE
 5060/tcp open     sip
 5061/tcp open     sip-tls
 
-Nmap done: 1 IP address (1 host up) scanned in 1.24 seconds`
+Nmap done: 1 IP address (1 host up) scanned in 1.24 seconds
+```
 
 2) Dionea with HTTP:
-`sigintz@mhn-honeypot-2:~$ nmap 35.197.36.229
+```sigintz@mhn-honeypot-2:~$ nmap 35.197.36.229
 
 Starting Nmap 6.40 ( http://nmap.org ) at 2018-04-06 20:29 UTC
 Nmap scan report for 229.36.197.35.bc.googleusercontent.com (35.197.36.229)
@@ -290,10 +291,11 @@ PORT     STATE    SERVICE
 5060/tcp open     sip
 5061/tcp open     sip-tls
 
-Nmap done: 1 IP address (1 host up) scanned in 1.25 seconds`
+Nmap done: 1 IP address (1 host up) scanned in 1.25 seconds
+```
 
-3)
-Errors occurred with additional attempts
+3) Attempted with p0f and Elastic Honey
+Errors occurred with additional attempts: appears to be OS related
 
 It should show three ports open...these are the services Dionaea is using to attract attackers. Switch back to the MHN Admin console in your browser, and from the top nav, choose Attacks. If everything goes well, you should see your IP address listed with several port scan records. This means the honeypot intercepted your attack.
 
@@ -320,8 +322,8 @@ The submission for this assignment will require an export of the data collected 
 
 To export the data to json, ssh into the MHN admin VM and run the following command:
 
-```$ mongoexport --db mnemosyne --collection session > session.json
-```
+`$ mongoexport --db mnemosyne --collection session > session.json`
+
 connected to: 127.0.0.1
 exported 12828 records
 A new file, session.json, should be created in the current directory. You can download this file to your machine and check it into the GitHub repo you create for this assignment along with your README.md write up.
