@@ -189,7 +189,7 @@ After having established SSH access the new honeypot VM, we need to install the 
 
 Errors encountered when trying to install p0f and ElasticHoney:
 
-`sigintz:~ sigintz$ wget "http://35.197.22.12/api/script/?text=true&script_id=6" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec
+```sigintz:~ sigintz$ wget "http://35.197.22.12/api/script/?text=true&script_id=6" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec
 --2018-04-06 14:19:59--  http://35.197.22.12/api/script/?text=true&script_id=6
 Connecting to 35.197.22.12:80... connected.
 HTTP request sent, awaiting response... 200 OK
@@ -227,7 +227,8 @@ registration.sh               100%[=============================================
 ++ echo -e 'ERROR: Unknown OS\nExiting!'
 ERROR: Unknown OS
 Exiting!
-++ exit -1`
+++ exit -1
+```
 
 ![Sensor 1](https://github.com/acary/fb-cp-wk9/blob/master/images/sensors.png?raw=true)
 ![Sensor 2](https://github.com/acary/fb-cp-wk9/blob/master/images/sensors-2.png?raw=true)
