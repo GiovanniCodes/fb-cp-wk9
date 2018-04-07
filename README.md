@@ -1,5 +1,43 @@
 # fb-cp-wk9
 
+*SUMMARY*
+
+i. Honeypot(s) deployed:
+* Dionea
+* Dionea with HTTP
+* Glastopf
+
+Attempted:
+* p0f
+* ElasticHoney
+
+ii. Issues encountered
+* p0f and Elastic Honey did not install due to OS mismatch (seems to need RedHat)
+* Otherwise, smooth deployments with GCP and MHN
+
+iii. A summary of the data collected: number of attacks, number of malware samples, etc.
+* mhn-honeypot-1 (Dionea)
+  * Attacks: 1760
+  * Duration live: 8 hours
+  * Protocols: pcap, SipSession, smbd, epmapper
+* mhn-honeypot-2 (Dionea with HTTP)
+  * Attacks: 847
+  * Duration live: 8 hours
+  * Protocols: SipSession, smbd, pcap, SipCall
+* mhn-honeypot-4 (Glastopf)
+  * Attacks: 0
+  * Duration live: under 1 hour
+  * Protocols: none during minimal live duration
+
+iv. Any unresolved questions raised by the data collected
+* Duration live is a factor necessary to collect increased amount of data
+* Deployments may be OS-specific
+
+v. JSON export of the data you collected in the repo
+* See `session.json` for export as of 4/6/18 21:32 PCT
+
+---
+*DETAILED NOTES*
 Week 9 Project: Honeypot
 Due: Friday, April 6th at 11:59pm
 Summary: Setup a honeypot and intercept some attempted attacks in the wild.
@@ -149,16 +187,25 @@ Now, create the VM for our honeypot, called mhn-honeypot-1:
 1) Dionea
 `$ gcloud compute instances create "mhn-honeypot-1" --machine-type "f1-micro" --subnet "default" --maintenance-policy "MIGRATE"  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "mhn-honeypot","http-server" --image "ubuntu-1404-trusty-v20171010" --image-project "ubuntu-os-cloud" --boot-disk-size "10" --boot-disk-type "pd-standard" --boot-disk-device-name "mhn-honeypot-1"`
 
-`NAME            ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
-mhn-honeypot-1  us-west1-a  f1-micro                   10.138.0.3   35.185.194.21  RUNNING`
+```NAME            ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
+mhn-honeypot-1  us-west1-a  f1-micro                   10.138.0.3   35.185.194.21  RUNNING
+```
 
 2) Dionea with HTTP
 `$ gcloud compute instances create "mhn-honeypot-2" --machine-type "f1-micro" --subnet "default" --maintenance-policy "MIGRATE"  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "mhn-honeypot","http-server" --image "ubuntu-1404-trusty-v20171010" --image-project "ubuntu-os-cloud" --boot-disk-size "10" --boot-disk-type "pd-standard" --boot-disk-device-name "mhn-honeypot-2"`
 
-`NAME            ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
-mhn-honeypot-2  us-west1-b  f1-micro                   10.138.0.4   35.197.36.229  RUNNING`
+```NAME            ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
+mhn-honeypot-2  us-west1-b  f1-micro                   10.138.0.4   35.197.36.229  RUNNING
+```
 
-3)
+3) Glastopf
+`$ gcloud compute instances create "mhn-honeypot-4" --machine-type "f1-micro" --subnet "default" --maintenance-policy "MIGRATE"  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "mhn-honeypot","http-server" --image "ubuntu-1404-trusty-v20171010" --image-project "ubuntu-os-cloud" --boot-disk-size "10" --boot-disk-type "pd-standard" --boot-disk-device-name "mhn-honeypot-4"`
+
+```NAME            ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP     STATUS
+mhn-honeypot-4  us-west1-b  f1-micro                   10.138.0.6   35.185.248.239  RUNNING
+```
+
+4) Other attempts: p0f, ElasticHoney
 `$ gcloud compute instances create "mhn-honeypot-3" --machine-type "f1-micro" --subnet "default" --maintenance-policy "MIGRATE"  --scopes "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring.write","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --tags "mhn-honeypot","http-server" --image "ubuntu-1404-trusty-v20171010" --image-project "ubuntu-os-cloud" --boot-disk-size "10" --boot-disk-type "pd-standard" --boot-disk-device-name "mhn-honeypot-3"`
 
 `NAME            ZONE        MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP    STATUS
@@ -170,6 +217,7 @@ Again, make note of the external IP, then go ahead and establish SSH access to t
 COMMAND: `gcloud compute ssh mhn-honeypot-1`
          `gcloud compute ssh mhn-honeypot-2`
          `gcloud compute ssh mhn-honeypot-3`
+         `gcloud compute ssh mhn-honeypot-4`
 
 ![Firewall Rules](https://github.com/acary/fb-cp-wk9/blob/master/images/firewall-rules.png?raw=true)
 
@@ -184,7 +232,10 @@ After having established SSH access the new honeypot VM, we need to install the 
 2) Dionea with HTTP:
 `wget "http://35.197.22.12/api/script/?text=true&script_id=4" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec`
 
-3) ElasticHoney:
+3) Glastopf
+`wget "http://35.197.22.12/api/script/?text=true&script_id=8" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec`
+
+4) p0f, ElasticHoney:
 `wget "http://35.197.22.12/api/script/?text=true&script_id=6" -O deploy.sh && sudo bash deploy.sh http://35.197.22.12 kRAWjSec`
 
 Errors encountered when trying to install p0f and ElasticHoney:
@@ -230,8 +281,7 @@ Exiting!
 ++ exit -1
 ```
 
-![Sensor 1](https://github.com/acary/fb-cp-wk9/blob/master/images/sensors.png?raw=true)
-![Sensor 2](https://github.com/acary/fb-cp-wk9/blob/master/images/sensors-2.png?raw=true)
+![Sensors 3](https://github.com/acary/fb-cp-wk9/blob/master/images/sensors-3.png?raw=true)
 
 ---
 So, copy the command from the browser page. It should start with wget and end with a unique token string. Execute this command inside the honeypot VM to install the Dionaea software. It shouldn't take more than a few minutes to complete. When it's done, click back over to the MHN admin console in your browser. From the top nav, choose Sensors >> View sensors and you should see the new honeypot listed.
